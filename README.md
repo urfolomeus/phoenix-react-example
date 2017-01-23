@@ -119,3 +119,48 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
 1. If we start up our server (`mix phoenix.server`), visit <http://localhost:4000> and then open the console we should see "Webpack is working".
 
 1. COMMIT 3
+
+1. In order to use the built-in Phoenix JavaScript, and just to have a more pleasant coding experience, we'll use Babel to transpile ES6 JavaScript into ES5 JavaScript. We'll start by installing the required libraries from npm. Check that your still in the root of your frontend project app and then:
+
+    ```shell
+    npm i -D babel-core babel-loader babel-preset-env
+    ```
+
+1. Now we need to wire up webpack to use Babel. In **webpack.config.js**
+
+    ```JavaScript
+    var path = require('path');
+
+    module.exports = {
+      ...
+      module: {
+        rules: [
+          {
+            test: /\.jsx?$/,
+            use: 'babel-loader',
+            exclude: /node_modules/
+          }
+        ]
+      },
+      resolve: {
+        modules: [ 'node_modules', __dirname + '/web/static/js' ]
+      }
+    ...
+    ```
+
+1. We can complete this step by adding a **.babelrc** file to the root of the frontend app with the following:
+
+    ```json
+    {
+      "presets": ["babel-preset-env"]
+    }
+    ```
+
+1. Check that everything has gone as planned by changed **web/static/app.js** to the following and then checking your browser console again.
+
+    ```JavaScript
+    const test = () => console.log('Webpack is working with Babel')
+    test()
+    ```
+
+1. COMMIT 4
