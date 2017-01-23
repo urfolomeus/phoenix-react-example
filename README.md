@@ -38,3 +38,12 @@ See the project's **.tool-versions** file.
     asdf local erlang <version>
     asdf local nodejs <version>
     ```
+
+3. **COMMIT 1**
+4. We'll now add a Phoenix app. Note that we're not using Ecto (we'll use a separate app to manage persistence) or Brunch (we'll be using Webpack instead).
+
+    ```shell
+    cd apps
+    mix phoenix.new --no-ecto --no-brunch <frontend_app_name>
+    ```
+5. **COMMIT 2**
