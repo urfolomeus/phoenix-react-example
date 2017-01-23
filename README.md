@@ -358,3 +358,77 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     ```
 
 1. If you refresh your browser you should see that the Phoenix logo has been added to the page. If you look towards the bottom of the generated **priv/static/js/app.js** file you should see that the image was appended as data rather than as a URL because the file size is under 40kb.
+
+1. COMMIT 6
+
+### Adding React
+
+1. OK time to start building our React app. We'll start, as ever, by adding the required libraries.
+
+    ```shell
+    npm i --save react react-dom
+    npm i -D babel-preset-react
+    ```
+1. The second line above enables us to tell Babel that we're going to be using JSX so that it will transpile it to ES5 for us as well as the ES6 we'll be writing. Adjust your **.babelrc** accordingly.
+
+    ```json
+    {
+      "presets": ["babel-preset-env", "react"]
+    }
+    ```
+
+1. Now we can test that everything is wired up by building a simple React component. We're going to start using the directory structure that we've come to favour even though there's no need just now. Start as we mean to go on as it were. We'll start with a simple component. Inside **web/static/js/app** create a folder called **components**. Rename the **web/static/js/app/app.css** file to **web/static/js/app/components/SayHello.css**. Now rename **web/static/js/app/app.js** to **web/static/js/app/components/SayHello.jsx** and change it to the following:
+
+    ```JavaScript
+    import React from 'react'
+
+    import './SayHello.css'
+    import phoenix from '../../../assets/images/phoenix.png'
+
+    const SayHello = () =>
+      <div>
+        <h1>Hello, world!</h1>
+        <img src={phoenix} />
+      </div>
+
+    export default SayHello
+    ```
+
+1. You may have noticed that we're using the file extension **.jsx** on the component file. This is not necessary, you can use **.js** just fine. I personally find it helps me to know whether a file is basically a pure component (i.e. there's little to know additional JavaScript logic in there) or something more convoluted. If you do want to use **.jsx** file extensions then you'll need to let webpack know about it. In the **resolve** section of your **webpack.config.js** file add the following:
+
+    `extensions: ['.js', '.jsx']`
+
+1. We now need a container to hook this up to. The reason for this will become apparent in the next section when we add Redux. Create a **web/static/js/app/containers** folder and add a file **App.js** to it. Add the following to it:
+
+    ```JavaScript
+    import React from 'react'
+
+    import SayHello from '../components/SayHello'
+
+    const App =
+      <SayHello />
+
+    export default App
+    ```
+
+1. In the root of the **web/static/js/app** folder create an **index.js** file with the content below:
+
+    ```JavaScript
+    export { default as App } from './containers/App'
+    ```
+
+    By creating an index file for each folder we can access it's contents through a described API, thus shielding the rest of the application from any changes.
+
+1. Change **web/static/js/index.js** to the following:
+
+    ```JavaScript
+    import ReactDOM from 'react-dom'
+
+    import { App } from './app'
+
+    ReactDOM.render(App, document.querySelector('.root'));
+    ```
+
+1. That should now be everything wired up. Refreshing your browser you should see "Hello, world!" with the Phoenix logo underneath it.
+
+1. COMMIT 7

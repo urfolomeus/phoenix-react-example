@@ -38,6 +38,7 @@ module.exports = {
     new ExtractTextPlugin('../css/app.css')
   ],
   resolve: {
-    modules: [ 'node_modules', __dirname + '/web/static/js' ]
+    modules: ['node_modules', __dirname + '/web/static/js'],
+    extensions: ['.js', '.jsx']
   }
 };
