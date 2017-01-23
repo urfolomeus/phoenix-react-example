@@ -132,7 +132,11 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     var path = require('path');
 
     module.exports = {
-      ...
+      entry: './web/static/js/index.js',
+      output: {
+        path: path.join(__dirname, 'priv', 'static', 'js'),
+        filename: 'app.js'
+      },
       module: {
         rules: [
           {
@@ -145,7 +149,8 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
       resolve: {
         modules: [ 'node_modules', __dirname + '/web/static/js' ]
       }
-    ...
+    };
+
     ```
 
 1. We can complete this step by adding a **.babelrc** file to the root of the frontend app with the following:
@@ -164,3 +169,106 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     ```
 
 1. COMMIT 4
+
+1. Now let's setup webpack to post process our CSS for us. Typically in a React project you keep the CSS files alongside the code files, so we'll stick with this convention. However, rather than have the styles added to the HTML file in a style tag as is typically done in development React apps, we'll build to **priv/static** as that's what is normally done in a Phoenix app. Feel free to change this in you app if you prefer. Let's start by installing the necesarry libraries (note that we need to specify the version for extract-text-webpack-plugin).
+
+    ```shell
+    npm i -D css-loader style-loader extract-text-webpack-plugin@2.0.0-beta.5
+    ```
+
+1. Now update the **webpack.config.js** file as follow:
+
+    ```JavaScript
+    var ExtractTextPlugin = require('extract-text-webpack-plugin');
+    var path = require('path');
+
+    module.exports = {
+      entry: './web/static/js/index.js',
+      output: {
+        path: path.join(__dirname, 'priv', 'static', 'js'),
+        filename: 'app.js'
+      },
+      module: {
+        rules: [
+          {
+            test: /\.jsx?$/,
+            use: 'babel-loader',
+            exclude: /node_modules/
+          },
+          {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract({
+              fallbackLoader: 'style-loader',
+              loader: 'css-loader'
+            })
+          }
+        ]
+      },
+      plugins: [
+        new ExtractTextPlugin('../css/app.css')
+      ],
+      resolve: {
+        modules: [ 'node_modules', __dirname + '/web/static/js' ]
+      }
+    };
+    ```
+
+    We add in a require for the ExtractTextPlugin and then use that in a new **plugins** section to generate a CSS file in **priv/static/css/app.css**.
+    Then we add a new rule to the **module** section that matches on files ending .css anywhere in our **web/static/js** folder and runs them through first the css-loader and then the style-loader, finally handing off to the ExtractTextPlugin loader.
+
+1. Let's now actually output something on the screen so that we can tell if we have everything wired up correctly. We'll start by deleting what's currently being shown. Change **web/templates/layouts/app.html.eex** as follows:
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Hello Frontend!</title>
+        <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+      </head>
+
+      <body>
+        <%= render @view_module, @view_template, assigns %>
+        <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+      </body>
+    </html>
+    ```
+
+    And then change **web/templates/page/index.html.eex** to the following:
+
+    ```html
+    <div class="root">App goes here</div>
+    ```
+
+1. We'll now create the skeleton for our React app. In **web/static/js** add a folder called **app** and then add the following files to it.
+
+    **app.css**
+
+    ```css
+    .root {
+      color: red;
+    }
+    ```
+
+    **app.js**
+
+    ```JavaScript
+    import './app.css'
+    ```
+
+1. And change **web/static/js/index.js** to the following:
+
+    ```JavaScript
+    import './app/app'
+    ```
+
+1. If you refresh your browser you should now see the text "App goes here" in red.
+
+1. We've not setup any special post processing rules here, but you might want to consider autoprefixing and possibly also CSS Modules.
+
+1. COMMIT 5

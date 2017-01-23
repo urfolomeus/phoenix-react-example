@@ -1,2 +1,1 @@
-const test = () => console.log('Webpack is working with Babel')
-test()
+import './app/app'
