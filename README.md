@@ -24,6 +24,8 @@ See the project's **.tool-versions** file.
 
 Please note that I've marked the commits with **COMMIT n** so that you can check the codebase if you need to.
 
+### Base umbrella app
+
 1. Navigate to the folder where you want to place the project and type:
 
     ```shell
@@ -42,6 +44,9 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     ```
 
 1. **COMMIT 1**
+
+### Adding Phoenix
+
 1. We'll now add a Phoenix app. Note that we're not using Ecto (we'll use a separate app to manage persistence) or Brunch (we'll be using Webpack instead).
 
     ```shell
@@ -49,6 +54,9 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     mix phoenix.new --no-ecto --no-brunch <frontend_app_name>
     ```
 1. **COMMIT 2**
+
+### Adding webpack
+
 1. Now we'll add Webpack, but before we can do that we need to initialize our application for npm.
 
     ```shell
@@ -120,6 +128,8 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
 
 1. COMMIT 3
 
+### Adding Babel
+
 1. In order to use the built-in Phoenix JavaScript, and just to have a more pleasant coding experience, we'll use Babel to transpile ES6 JavaScript into ES5 JavaScript. We'll start by installing the required libraries from npm. Check that your still in the root of your frontend project app and then:
 
     ```shell
@@ -169,6 +179,8 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     ```
 
 1. COMMIT 4
+
+### Adding CSS Processing
 
 1. Now let's setup webpack to post process our CSS for us. Typically in a React project you keep the CSS files alongside the code files, so we'll stick with this convention. However, rather than have the styles added to the HTML file in a style tag as is typically done in development React apps, we'll build to **priv/static** as that's what is normally done in a Phoenix app. Feel free to change this in you app if you prefer. Let's start by installing the necesarry libraries (note that we need to specify the version for extract-text-webpack-plugin).
 
@@ -272,3 +284,77 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
 1. We've not setup any special post processing rules here, but you might want to consider autoprefixing and possibly also CSS Modules.
 
 1. COMMIT 5
+
+### Adding image support
+
+1. React has a different way of handling images. They are typically imported in to the component file thaat needs them and then attached to the image. One way that is becoming popular is to use a library like **image-webpack-loader** to determine based on the size of a file whether to generate a url to an image or whether to turn it into a blob and attach that as data to the image tag. We'll set this up in webpack, but first we need the libraries.
+
+    ```shell
+    npm i -D image-webpack-loader url-loader
+    ```
+
+1. Now open **webpack.config.js** and change it to the following:
+
+    ```JavaScript
+    var ExtractTextPlugin = require('extract-text-webpack-plugin');
+    var path = require('path');
+
+    module.exports = {
+      entry: './web/static/js/index.js',
+      output: {
+        path: path.join(__dirname, 'priv', 'static', 'js'),
+        filename: 'app.js',
+        publicPath: 'priv/static'
+      },
+      module: {
+        rules: [
+          {
+            test: /\.jsx?$/,
+            use: 'babel-loader',
+            exclude: /node_modules/
+          },
+          {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract({
+              fallbackLoader: 'style-loader',
+              loader: 'css-loader'
+            })
+          },
+          {
+            test: /\.(jpe?g|png|gif|svg)$/,
+            use: [
+              {
+                loader: 'url-loader',
+                options: { limit: 40000 }
+              },
+              'image-webpack-loader'
+            ]
+          }
+        ]
+      },
+      plugins: [
+        new ExtractTextPlugin('../css/app.css')
+      ],
+      resolve: {
+        modules: [ 'node_modules', __dirname + '/web/static/js' ]
+      }
+    };
+    ```
+
+    We've added another rule, this time to match on image file extensions and use the url and image-webpack loaders to either attach the image as data if it's 40kb or under or as a url. We also had to a **publicPath** key to our **output** section so that webpack knows where to place any image file that we need.
+
+1. Let's test what we've built. Move the **phoenix.png** file from **priv/static/images** into **web/static/assets/images** (you may need to create the latter folder if you created your folder without Brunch).
+
+1. Now open **web/static/js/app/app.js** and change it to the following:
+
+    ```JavaScript
+    import './app.css'
+
+    import phoenix from '../../assets/images/phoenix.png'
+
+    const image = document.createElement('img')
+    image.src = phoenix
+    document.body.appendChild(image)
+    ```
+
+1. If you refresh your browser you should see that the Phoenix logo has been added to the page. If you look towards the bottom of the generated **priv/static/js/app.js** file you should see that the image was appended as data rather than as a URL because the file size is under 40kb.
