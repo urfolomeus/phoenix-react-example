@@ -1,0 +1,22 @@
+{
+  "name": "phoenix_react_example",
+  "version": "0.1.0",
+  "description": "An example Phoenix React application",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack --watch-stdin --progress --color"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/CultivateHQ/phoenix-react-example.git"
+  },
+  "author": "Alan Gardner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CultivateHQ/phoenix-react-example/issues"
+  },
+  "homepage": "https://github.com/CultivateHQ/phoenix-react-example#readme",
+  "devDependencies": {
+    "webpack": "^2.2.0"
+  }
+}
