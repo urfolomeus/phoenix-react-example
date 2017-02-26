@@ -111,11 +111,12 @@ Please note that I've marked the commits with **COMMIT n** so that you can check
     ...
     ```
 
-1. And then call it from **config/dev.exs** in the watchers section
+1. And then call it from **config/dev.exs** in the watchers section, passing in the location of the root of the frontend app so that NPM knows where to find the package.json file.
 
     ```elixir
     #...
-      watchers: [npm: ["run", "start"]]
+      watchers: [  watchers: [npm: ["start", "--prefix=./apps/<app_name>"]]
+]
     #...
     ```
 
